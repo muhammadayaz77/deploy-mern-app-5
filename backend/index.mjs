@@ -5,6 +5,7 @@ import userModel from './Models/userModel.mjs';
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import cors from 'cors'
+import postModel from './Models/postModel.mjs';
 dotenv.config();
 let PORT = process.env.PORT || 3000;
 let app = express();
@@ -23,7 +24,7 @@ app.post('/create',async(req,res)=>{
     password : hashedPassword
   })
   await data.save();
-  let token = jwt.sign({email,userId:data._id},process.env.SECRET_KEY);
+  let token = jwt.sign({email,name},process.env.SECRET_KEY);
   res.json(token);
 })
 app.post('/login',async(req,res)=>{
@@ -32,12 +33,13 @@ app.post('/login',async(req,res)=>{
   if(!user) return res.json({message : "Don't have account"})
   let hashedPassword = bcrypt.compare(password,user.password);
   if(hashedPassword){
-    let token = jwt.sign({email},process.env.SECRET_KEY);
+    let token = jwt.sign({email,name:user.name},process.env.SECRET_KEY);
     res.json(token);
   }
   else res.send({message : 'Something went wrong'});
 })
 app.get('/profile',verifyToken,(req,res)=>{
+  res.json(req.user);
   res.send("You can access");
 })
 function verifyToken(req, res, next) {

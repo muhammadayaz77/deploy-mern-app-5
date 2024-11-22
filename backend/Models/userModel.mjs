@@ -8,6 +8,12 @@ let userSchema = new mongoose.Schema({
     unique : true,
   },
   password : String,
+  posts : [
+    {
+      type : mongoose.Schema.Types.ObjectId,
+      ref : 'post'
+    }
+  ]
 })
 let userModel = mongoose.model('user',userSchema);
 export default userModel;

@@ -1,8 +1,10 @@
 import React from 'react'
 import { useState } from 'react'
 import axios from 'axios'
+import {useNavigate} from 'react-router-dom'
 let url = 'http://localhost:3000/create';
 function Register() {
+  let navigate = useNavigate();
   let [data,setData] = useState({
     fname : '',
     lname : '',
@@ -33,7 +35,8 @@ function Register() {
         name : `${fname} ${lname}`,
       })
       .then((res)=>{
-        localStorage.setItem('token',res.data)
+        navigate("/")
+        localStorage.setItem('token',res.data);
       })
       .catch((err)=>{
         console.log(err);
