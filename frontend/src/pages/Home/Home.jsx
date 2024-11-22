@@ -1,37 +1,96 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import Navbar from '../../components/Navbar'
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
 import { useState } from 'react'
 import { useEffect } from 'react'
-let url = 'http://localhost:3000/profile'
+let url = 'http://localhost:3000'
 
 function Home() {
-  let [user,setUser] = useState({});
+  let content = useRef();
+  let [data,setData] = useState([ ]);
   let navigate = useNavigate();
-  let [data,setData] = useState(false);
-  useEffect(()=>{
+  let [loading,setLoading] = useState(false);
+  let fetchedData = () => {
+    setLoading(false);
     let token = localStorage.getItem('token');
-      axios.get(url,{
+      axios.get(`${url}/profile`,{
         headers : {
           "Authorization" : `Bearer ${token}`
         }
       })
       .then((res)=>{
         console.log(res);
-        setUser(res.data);
-        setData(true);
+        setData(res.data.post);
+        setLoading(true);
       })
       .catch((err)=>{
         navigate("/auth/login");
         console.log(err);
       });
+  }
+  useEffect(()=>{
+   fetchedData();
   },[])
+  const handleCreateBtn = async (e) => {
+    e.preventDefault(); // Prevent form refresh
+    const token = localStorage.getItem('token'); // Retrieve JWT token from localStorage
+  
+    if (!token) {
+        console.log('User is not authenticated. Please log in.');
+        return;
+    }
+  
+    try {
+        const response = await axios.post(
+            `${url}/userPost`, // Your Express route URL
+            { 
+              content : content.current.value
+  
+             }, // Data sent in the request body
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+                },
+            }
+        );
+        console.log(response.data); // Handle the response message
+    } catch (error) {
+        // Handle errors (e.g., network, validation, server errors)
+        console.log(
+            error.response?.data?.message || 'An error occurred while creating the post.'
+        );
+    }
+    fetchedData();
+    content.current.value = "";
+  };
   return (
     <>
    <Navbar></Navbar>
-   <h1 className='text-2xl font-bold ml-20 mt-20'><span className='text-zinc-500'>Welcome, </span>{user.name}👋</h1>
-   <p className='ml-20'>{user.email}</p>
+   {/* ADD Content Here */}
+  <div className='ml-20 mt-5'>
+  <h2 className='text-sm mb-3 text-zinc-500'>You can create a new post.</h2>
+        <form
+        onSubmit={handleCreateBtn}
+        action="">
+        <textarea 
+        ref={content}
+        className='block bg-transparent border-[1px] border-zinc-600 text-sm w-[30%] p-2 my-3'
+        name="content" id="" placeholder="What's on your mind ?"></textarea>
+        <button type="submit" className='bg-blue-500 p-2 rounded-md'>Create New Post</button>
+        </form>
+  </div>
+   {/* Show Data Here */}
+    <h1 className='ml-20 mt-10 text-xl font-semibold text-zinc-600'>All Posts Here.</h1>
+    {
+      data.map(item => (
+        <div className='ml-20 bg-zinc-200 w-[30%] p-3 mt-3 rounded-sm'>
+        <p className='text-blue-700'>@async</p>
+        <p className='text-sm tracking-tight my-3'>{item.content}</p>
+        <p className='text-[14px]'><span className='text-blue-500'>Like</span> <span className='text-zinc-500'>Edit</span></p>
+      </div>
+      ))
+    }
     </>
   )
 }

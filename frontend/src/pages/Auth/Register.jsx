@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import axios from 'axios'
-import {useNavigate} from 'react-router-dom'
+import {useNavigate,Link} from 'react-router-dom'
 let url = 'http://localhost:3000/create';
 function Register() {
   let navigate = useNavigate();
@@ -87,6 +87,7 @@ class="max-w-md mx-auto mt-20">
   
   <button 
   type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Signup</button>
+  <small className='block text-zinc-400 mt-2'>Already have an Account? <Link to='/auth/login' className='inline-block text-blue-500 border-b-2 border-spacing-y-0.5 border-blue-500'>Login</Link></small>
 </form>
 
     </>

@@ -38,10 +38,27 @@ app.post('/login',async(req,res)=>{
   }
   else res.send({message : 'Something went wrong'});
 })
-app.get('/profile',verifyToken,(req,res)=>{
-  res.json(req.user);
-  res.send("You can access");
-})
+app.get('/profile',verifyToken,async(req,res)=>{
+  let post = await postModel.find();
+  res.send({post});
+});
+app.get('/userProfile',verifyToken,async(req,res)=>{
+  let post = await userModel.findOne({email:req.user.email}).populate('posts');
+  res.send(post);
+});
+app.post('/userPost',verifyToken,async(req,res)=>{
+  let user = await userModel.findOne({email:req.user.email});
+  console.log(user._id);
+  let {content} = req.body;
+  let post = await postModel({
+    user : user._id,
+    content
+  })
+  await post.save();
+  user.posts.push(post._id);
+  await user.save();
+  res.send({user,post});
+});
 function verifyToken(req, res, next) {
   // Get token from Authorization header
   const token = req.headers['authorization'] && req.headers['authorization'].split(' ')[1];
