@@ -19,8 +19,7 @@ function Home() {
           "Authorization" : `Bearer ${token}`
         }
       })
-      .then((res)=>{
-        console.log(res);
+      .then((res)=>{  
         setData(res.data.post);
         setLoading(true);
       })

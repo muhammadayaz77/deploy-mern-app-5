@@ -18,7 +18,6 @@ function Home() {
         }
       })
       .then((res)=>{
-        console.log(res);
         setData(res.data.posts);
         setUser(res.data)
         setLoading(true);
