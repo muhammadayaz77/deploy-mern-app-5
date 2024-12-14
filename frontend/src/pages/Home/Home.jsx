@@ -7,6 +7,7 @@ import { useEffect } from 'react'
 let url = 'http://localhost:3000'
 
 function Home() {
+  let [id,setId] = useState('');
   let content = useRef();
   let [data,setData] = useState([ ]);
   let navigate = useNavigate();
@@ -63,10 +64,38 @@ function Home() {
     fetchedData();
     content.current.value = "";
   };
+  let handleLikeBtn = async (id) => {
+    const token = localStorage.getItem('token'); // Retrieve JWT token from localStorage
+  
+    if (!token) {
+        console.log('User is not authenticated. Please log in.');
+        return;
+    }
+  
+    try {
+        const response = await axios.get(
+            `${url}/likes/${id}`, // Your Express route URL
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+                },
+            }
+        );
+        console.log(response.data._id); // Handle the response message
+        setId(response.data._id); // Handle the response message
+    } catch (error) {
+        // Handle errors (e.g., network, validation, server errors)
+        console.log(
+            error.response?.data?.message || 'An error occurred while creating the post.'
+        );
+    }
+    fetchedData();
+  }
   return (
     <>
    <Navbar></Navbar>
    {/* ADD Content Here */}
+   
   <div className='ml-20 mt-5'>
   <h2 className='text-sm mb-3 text-zinc-500'>You can create a new post.</h2>
         <form
@@ -85,8 +114,9 @@ function Home() {
       data.map(item => (
         <div className='ml-20 bg-zinc-200 w-[30%] p-3 mt-3 rounded-sm'>
         <p className='text-blue-700'>@async</p>
-        <p className='text-sm tracking-tight my-3'>{item.content}</p>
-        <p className='text-[14px]'><span className='text-blue-500'>Like</span> <span className='text-zinc-500'>Edit</span></p>
+        <p className='text-sm tracking-tight mt-3'>{item.content}</p>
+        <small className='text-[11px]'>{item.likes.length} Likes</small>
+        <p className='text-[14px]'><span onClick={()=>{handleLikeBtn(item._id)}} className='text-blue-700 cursor-pointer'>Like</span> <span className='text-zinc-500'>Edit</span></p>
       </div>
       ))
     }

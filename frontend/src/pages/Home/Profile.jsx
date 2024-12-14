@@ -30,6 +30,9 @@ function Home() {
   useEffect(()=>{
    fetchedData();
   },[])
+  let handleLikeBtn = (id) => {
+    console.log("ID : ",id);
+  }
   return (
     <>
    {/* Show Data Here */}
@@ -41,7 +44,7 @@ function Home() {
         <div className='ml-20 bg-zinc-200 w-[30%] p-3 mt-3 rounded-sm'>
         <p className='text-blue-700'>@async</p>
         <p className='text-sm tracking-tight my-3'>{item.content}</p>
-        <p className='text-[14px]'><span className='text-blue-500'>Like</span> <span className='text-zinc-500'>Edit</span></p>
+        <p className='text-[14px]'><button onClick={()=> handleLikeBtn(item._id)} className='text-blue-500'>Like</button> <span className='text-zinc-500'>Edit</span></p>
       </div>
       ))
     }

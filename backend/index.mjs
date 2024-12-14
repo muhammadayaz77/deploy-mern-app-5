@@ -24,7 +24,7 @@ app.post('/create',async(req,res)=>{
     password : hashedPassword
   })
   await data.save();
-  let token = jwt.sign({email,name},process.env.SECRET_KEY);
+  let token = jwt.sign({email,name,userId:data._id},process.env.SECRET_KEY);
   res.json(token);
 })
 app.post('/login',async(req,res)=>{
@@ -33,7 +33,7 @@ app.post('/login',async(req,res)=>{
   if(!user) return res.json({message : "Don't have account"})
   let hashedPassword = bcrypt.compare(password,user.password);
   if(hashedPassword){
-    let token = jwt.sign({email,name:user.name},process.env.SECRET_KEY);
+    let token = jwt.sign({email,name:user.name,userId:user._id},process.env.SECRET_KEY);
     res.json(token);
   }
   else res.send({message : 'Something went wrong'});
@@ -59,6 +59,15 @@ app.post('/userPost',verifyToken,async(req,res)=>{
   await user.save();
   res.send({user,post});
 });
+app.get("/likes/:id",verifyToken,async(req,res)=>{
+  let post = await postModel.findById({_id:req.params.id}).populate('user');
+  if(post.likes.indexOf(req.user.userId) === -1)
+  post.likes.push(req.user.userId);
+  else 
+  post.likes.splice(post.likes.indexOf(req.user.userId),1);        
+  await post.save();
+  res.json(post);
+})
 function verifyToken(req, res, next) {
   // Get token from Authorization header
   const token = req.headers['authorization'] && req.headers['authorization'].split(' ')[1];
